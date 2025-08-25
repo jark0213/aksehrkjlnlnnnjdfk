@@ -26,7 +26,7 @@ jobs:
           repository: <소스_소유자>/<소스_리포>
           run-id: ${{ github.event.client_payload.run_id }}
           # 소스 리포가 프라이빗이면 아래 라인을 추가하고, 외부 리포 시크릿에 SOURCE_READ_TOKEN을 넣어주세요.
-          # github-token: ${{ secrets.SOURCE_READ_TOKEN }}
+          github-token: ${{ secrets.SOURCE_READ_TOKEN }}
 
       - name: Verify site folder
         run: |
