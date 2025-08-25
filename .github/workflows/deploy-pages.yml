@@ -8,35 +8,63 @@ permissions:
   pages: write
   id-token: write
   contents: read
+  actions: read
 
 concurrency:
   group: pages-deploy
   cancel-in-progress: true
 
 env:
-  SOURCE_REPO: ${{ secrets.SOURCE_REPO }} # 예: jark0213/DungeonDIce_MockUp_UnityFIle
+  SOURCE_REPO: ${{ secrets.SOURCE_REPO }}   # 예: jark0213/DungeonDIce_MockUp_UnityFIle
+  ARTIFACT_NAME: ${{ github.event.client_payload.artifact }}
+  SOURCE_RUN_ID: ${{ github.event.client_payload.run_id }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - name: Validate payload
+      - name: Validate payload & secrets
         run: |
-          test -n "${{ github.event.client_payload.run_id }}" || { echo "run_id missing"; exit 1; }
-          test -n "${{ github.event.client_payload.artifact }}" || { echo "artifact name missing"; exit 1; }
-          echo "run_id=${{ github.event.client_payload.run_id }}"
-          echo "artifact=${{ github.event.client_payload.artifact }}"
-          echo "source_repo=$SOURCE_REPO"
+          set -e
+          test -n "${SOURCE_REPO}"      || { echo "::error::SOURCE_REPO secret missing"; exit 1; }
+          test -n "${ARTIFACT_NAME}"    || { echo "::error::artifact name missing"; exit 1; }
+          test -n "${SOURCE_RUN_ID}"    || { echo "::error::run_id missing"; exit 1; }
+          echo "source_repo=${SOURCE_REPO}"
+          echo "artifact=${ARTIFACT_NAME}"
+          echo "run_id=${SOURCE_RUN_ID}"
+
+      # (선택) 소스 아티팩트 준비됐는지/권한 있는지 사전 확인
+      - name: Probe source artifacts (auth check + retry)
+        env:
+          TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}   # 소스 리포에 Actions:read 권한 있는 PAT
+        run: |
+          set -e
+          IFS='/' read -r OWNER REPO <<< "${SOURCE_REPO}"
+          for i in $(seq 1 10); do
+            code=$(curl -sS -o artifacts.json -w "%{http_code}" \
+              -H "Authorization: Bearer ${TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${OWNER}/${REPO}/actions/runs/${SOURCE_RUN_ID}/artifacts")
+            echo "GET artifacts -> ${code} (try ${i}/10)"
+            jq '.artifacts | map({name, id, size_in_bytes})' artifacts.json || true
+            [ "$code" = "200" ] || { echo "::error::Cannot access artifacts (token perms/repo name/SSO)"; exit 1; }
+            jq -e --arg n "${ARTIFACT_NAME}" '.artifacts[]? | select(.name==$n)' artifacts.json >/dev/null && break
+            [ "$i" -eq 10 ] && { echo "::error::artifact '${ARTIFACT_NAME}' not found in run ${SOURCE_RUN_ID}"; exit 1; }
+            sleep 6
+          done
 
       - name: Download build artifact from source repo
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.event.client_payload.artifact }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: site
           repository: ${{ env.SOURCE_REPO }}
-          run-id: ${{ github.event.client_payload.run_id }}
-          # 소스 리포가 private이면 아래 줄을 주석 해제 + 시크릿 추가
-          github-token: ${{ secrets.SOURCE_READ_TOKEN }}
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          github-token: ${{ secrets.SOURCE_READ_TOKEN }}   # 소스 리포가 private이면 필수
 
       - name: Verify site folder
         run: |
@@ -44,10 +72,16 @@ jobs:
           du -sh site || true
           ls -lah site/Build || true
 
+      # ✅ Pages 설정 (필수)
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
+      # ✅ 배포 (id 필요)
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
