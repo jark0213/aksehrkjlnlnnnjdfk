@@ -1,0 +1,44 @@
+name: Deploy WebGL via Pages Artifact
+
+on:
+  repository_dispatch:
+    types: [deploy_from_source]
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read    # (download-artifact가 다른 리포에서 가져오면 필요)
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 소스 리포의 artifact를 run_id로 다운로드
+      - name: Download build artifact from source repo
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.event.client_payload.artifact || 'webgl-build' }}
+          path: site
+          repository: <소스_소유자>/<소스_리포>
+          run-id: ${{ github.event.client_payload.run_id }}
+          # 소스 리포가 프라이빗이면 아래 라인을 추가하고, 외부 리포 시크릿에 SOURCE_READ_TOKEN을 넣어주세요.
+          # github-token: ${{ secrets.SOURCE_READ_TOKEN }}
+
+      - name: Verify site folder
+        run: |
+          test -f "site/index.html" || { echo "::error::site/index.html missing"; ls -R site || true; exit 1; }
+          ls -lah site
+          echo "----Build dir----"
+          ls -lah site/Build || true
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
