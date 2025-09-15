@@ -1,8 +1,9 @@
 name: Deploy WebGL via Pages Artifact
 
 on:
-  repository_dispatch:
-    types: [deploy_from_source]
+  push:
+    branches: [ main ]   # Repo A가 실제 푸시하는 브랜치와 일치
+  workflow_dispatch:      # (선택) 수동 실행도 허용
 
 permissions:
   pages: write
