@@ -2,8 +2,8 @@ name: Deploy WebGL via Pages Artifact
 
 on:
   push:
-    branches: [ main ]   # Repo A가 실제 푸시하는 브랜치와 일치
-  workflow_dispatch:      # (선택) 수동 실행도 허용
+    branches: [ main ]          # Repo A가 실제로 푸시하는 브랜치와 동일
+  workflow_dispatch:             # (선택) 수동 실행 허용
 
 permissions:
   pages: write
@@ -14,11 +14,6 @@ permissions:
 concurrency:
   group: pages-deploy
   cancel-in-progress: true
-
-env:
-  SOURCE_REPO: ${{ secrets.SOURCE_REPO }}   # 예: jark0213/DungeonDIce_MockUp_UnityFIle
-  ARTIFACT_NAME: ${{ github.event.client_payload.artifact }}
-  SOURCE_RUN_ID: ${{ github.event.client_payload.run_id }}
 
 jobs:
   deploy:
@@ -33,12 +28,31 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      # (재실행 대비) 같은 run 안에 남아있을 수 있는 'github-pages' 아티팩트 선삭제
+      - name: Pre-clean leftover 'github-pages' artifact (safe for reruns)
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          REPO="${{ github.repository }}"
+          RUN="${{ github.run_id }}"
+          curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/repos/$REPO/actions/runs/$RUN/artifacts" > artifacts.json
+          IDS=$(jq -r '.artifacts[] | select(.name=="github-pages") | .id' artifacts.json || true)
+          for id in $IDS; do
+            echo "Deleting artifact id=$id"
+            curl -sS -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" \
+                 -H "Accept: application/vnd.github+json" \
+                 "https://api.github.com/repos/$REPO/actions/artifacts/$id" || true
+          done
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-         path: site
+          path: site              # <- Repo A가 푸시한 폴더
 
-      # ✅ 배포 (id 필요)
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -59,6 +73,7 @@ jobs:
           PAYLOAD=$(jq -Rn --arg c "$MSG" '{content:$c}')
           curl -sS -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL" || true
 
+      # (선택) 배포 후 Pages 아티팩트 깔끔하게 삭제
       - name: Delete Pages artifact via REST API
         if: ${{ success() }}
         env:
