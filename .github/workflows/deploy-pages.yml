@@ -66,3 +66,22 @@ jobs:
           MSG="$EMOJI Pages deployment $STATUS\n🔗 ${PAGE_URL:-N/A}"
           PAYLOAD=$(jq -Rn --arg c "$MSG" '{content:$c}')
           curl -sS -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL" || true
+
+      - name: Delete Pages artifact via REST API
+        if: ${{ success() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          REPO="${{ github.repository }}"
+          RUN="${{ github.run_id }}"
+          curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               "https://api.github.com/repos/$REPO/actions/runs/$RUN/artifacts" > artifacts.json
+          IDS=$(jq -r '.artifacts[] | select(.name=="github-pages") | .id' artifacts.json)
+          for id in $IDS; do
+            echo "Deleting artifact id=$id"
+            curl -sS -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" \
+                 -H "Accept: application/vnd.github+json" \
+                 "https://api.github.com/repos/$REPO/actions/artifacts/$id"
+          done
