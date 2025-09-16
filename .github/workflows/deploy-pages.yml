@@ -57,21 +57,6 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Notify Discord (from deploy-pages)
-        if: always()
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          STATUS: ${{ job.status }}
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: |
-          if [ -z "${DISCORD_WEBHOOK_URL:-}" ]; then
-            echo "::warning::No DISCORD_WEBHOOK_URL; skipping"
-            exit 0
-          fi
-          EMOJI=$([ "$STATUS" = "success" ] && echo "✅" || echo "❌")
-          MSG="$EMOJI Pages deployment $STATUS\n🔗 ${PAGE_URL:-N/A}"
-          PAYLOAD=$(jq -Rn --arg c "$MSG" '{content:$c}')
-          curl -sS -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL" || true
 
       # (선택) 배포 후 Pages 아티팩트 깔끔하게 삭제
       - name: Delete Pages artifact via REST API
