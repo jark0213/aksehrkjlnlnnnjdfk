@@ -57,21 +57,26 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Notify Discord (from deploy-pages)
-        if: always()
+      # ✅ 성공만 알림
+      - name: Notify Discord — success
+        if: ${{ success() && secrets.DISCORD_WEBHOOK_URL != '' }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          STATUS: ${{ job.status }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
-          if [ -z "${DISCORD_WEBHOOK_URL:-}" ]; then
-            echo "::warning::No DISCORD_WEBHOOK_URL; skipping"
-            exit 0
-          fi
-          EMOJI=$([ "$STATUS" = "success" ] && echo "✅" || echo "❌")
-          MSG="$EMOJI Pages deployment $STATUS\n🔗 ${PAGE_URL:-N/A}"
-          PAYLOAD=$(jq -Rn --arg c "$MSG" '{content:$c}')
-          curl -sS -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL" || true
+          payload=$(printf '{"content":"✅ Pages deployment success\n🔗 %s"}' "${PAGE_URL:-N/A}")
+          curl -sS -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL"
+
+      # ❌ 실패만 알림 (취소 제외)
+      - name: Notify Discord — failure
+        if: ${{ failure() && !cancelled() && secrets.DISCORD_WEBHOOK_URL != '' }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          payload=$(printf '{"content":"❌ Pages deployment failed\n🔎 Logs: %s"}' "$RUN_URL")
+          curl -sS -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL"
+
 
       # (선택) 배포 후 Pages 아티팩트 깔끔하게 삭제
       - name: Delete Pages artifact via REST API
