@@ -64,7 +64,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
-          payload=$(printf '{"content":"✅ Pages deployment success\n🔗 %s"}' "${PAGE_URL:-N/A}")
+          payload=$(printf '{"content":"✅ Pages deployment success 🔗 %s"}' "${PAGE_URL:-N/A}")
           curl -sS -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL"
 
       # ❌ 실패만 알림 (취소 제외)
@@ -74,7 +74,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          payload=$(printf '{"content":"❌ Pages deployment failed\n🔎 Logs: %s"}' "$RUN_URL")
+          payload=$(printf '{"content":"❌ Pages deployment failed 🔎 Logs: %s"}' "$RUN_URL")
           curl -sS -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL"
 
 
