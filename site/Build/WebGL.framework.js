@@ -1994,13 +1994,13 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  7444208: function() {return Module.webglContextAttributes.premultipliedAlpha;},  
- 7444269: function() {return Module.webglContextAttributes.preserveDrawingBuffer;},  
- 7444333: function() {return Module.webglContextAttributes.powerPreference;},  
- 7444391: function() {Module['emscripten_get_now_backup'] = performance.now;},  
- 7444446: function($0) {performance.now = function() { return $0; };},  
- 7444494: function($0) {performance.now = function() { return $0; };},  
- 7444542: function() {performance.now = Module['emscripten_get_now_backup'];}
+  7444240: function() {return Module.webglContextAttributes.premultipliedAlpha;},  
+ 7444301: function() {return Module.webglContextAttributes.preserveDrawingBuffer;},  
+ 7444365: function() {return Module.webglContextAttributes.powerPreference;},  
+ 7444423: function() {Module['emscripten_get_now_backup'] = performance.now;},  
+ 7444478: function($0) {performance.now = function() { return $0; };},  
+ 7444526: function($0) {performance.now = function() { return $0; };},  
+ 7444574: function() {performance.now = Module['emscripten_get_now_backup'];}
 };
 
 
@@ -19610,17 +19610,6 @@ function invoke_vifffi(index,a1,a2,a3,a4,a5) {
   }
 }
 
-function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
-  var sp = stackSave();
-  try {
-    dynCall_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
 function invoke_iiiifi(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
@@ -19647,6 +19636,17 @@ function invoke_iiiiiiiiiiiiifiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a
   var sp = stackSave();
   try {
     return dynCall_iiiiiiiiiiiiifiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;

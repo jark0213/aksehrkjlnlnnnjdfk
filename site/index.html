@@ -1,244 +1,116 @@
-<!--<!DOCTYPE html>
-<html lang="en-us">
-
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>DungeonDice_MockUp</title>
-	<style>
-		html,
-		body {
-			background: Black;
-			width: 100%;
-			height: 100%;
-			overflow: visible;
-			padding: 0;
-			margin: 0;
-		}
-
-		div#gameContainer {
-			background: transparent !important;
-			position: absolute;
-		}
-
-		div#gameContainer canvas {
-			position: absolute;
-		}
-
-		div#gameContainer canvas[data-pixel-art="true"] {
-			position: absolute;
-			image-rendering: optimizeSpeed;
-			image-rendering: -webkit-crisp-edges;
-			image-rendering: -moz-crisp-edges;
-			image-rendering: -o-crisp-edges;
-			image-rendering: crisp-edges;
-			image-rendering: -webkit-optimize-contrast;
-			image-rendering: optimize-contrast;
-			image-rendering: pixelated;
-			-ms-interpolation-mode: nearest-neighbor;
-		}
-	</style>
-	<script type='text/javascript'>
-		document.onmousedown = function () { window.focus(); };
-	</script>
-</head>
-
-<body>
-	<div id="gameContainer">
-		<canvas id="unity-canvas" data-pixel-art="true"></canvas>
-		<script src="Build/WebGL.loader.js"></script>
-		<script>
-			var canvas = document.querySelector("#unity-canvas");
-			var config = {
-				dataUrl: "Build/WebGL.data",
-				frameworkUrl: "Build/WebGL.framework.js",
-				codeUrl: "Build/WebGL.wasm",
-				streamingAssetsUrl: "StreamingAssets",
-				companyName: "MilestoneGames",
-				productName: "DungeonDice_MockUp",
-				productVersion: "6.1.5",
-			};
-			var scaleToFit;
-			try {
-				scaleToFit = !!JSON.parse("true");
-			} catch (e) {
-				scaleToFit = true;
-			}
-			function progressHandler(progress) {
-				var percent = progress * 100 + '%';
-				canvas.style.background = 'linear-gradient(to right, white, white ' + percent + ', transparent ' + percent + ', transparent) no-repeat center';
-				canvas.style.backgroundSize = '100% 1rem';
-			}
-			function onResize() {
-				var container = canvas.parentElement;
-				var w;
-				var h;
-
-				if (scaleToFit) {
-					w = window.innerWidth;
-					h = window.innerHeight;
-
-					var r = 1080 / 1920;
-
-					if (w * r > window.innerHeight) {
-						w = Math.min(w, Math.ceil(h / r));
-					}
-					h = Math.floor(w * r);
-				} else {
-					w = 1920;
-					h = 1080;
-				}
-
-				container.style.width = canvas.style.width = w + "px";
-				container.style.height = canvas.style.height = h + "px";
-				container.style.top = Math.floor((window.innerHeight - h) / 2) + "px";
-				container.style.left = Math.floor((window.innerWidth - w) / 2) + "px";
-			}
-
-			createUnityInstance(canvas, config, progressHandler).then(function (instance) {
-				window.unityInstance = instance;
-				canvas = instance.Module.canvas;
-				onResize();
-
-				window.addEventListener('resize', function() {
-					onResize();
-					if (window.unityInstance) {
-						window.unityInstance.SendMessage('ResizeManager', 'OnResize');
-					}
-				});
-			});
-
-			window.addEventListener('resize', onResize);
-			onResize();
-
-			if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-				const meta = document.createElement('meta');
-				meta.name = 'viewport';
-				meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-				document.getElementsByTagName('head')[0].appendChild(meta);
-			}
-		</script>
-	</div>
-</body>
-
-</html>-->
-
 <!DOCTYPE html>
 <html lang="en-us">
-
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>DungeonDice_MockUp</title>
-	<style>
-		html,
-		body {
-			background: Black;
-			width: 100%;
-			height: 100%;
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DungeonDice_MockUp</title>
+    <style>
+        html, body {
+            background: Black;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
             display: flex;
-            justify-content: center;  /* 가로 중앙 */
-            align-items: center;      /* 세로 중앙 */
-		}
-
-		/* ───────────────────────────────────────────────────────────
-		   gameContainer를 1920×1080으로 고정
-		─────────────────────────────────────────────────────────── */
-		#gameContainer {
-			width: 1280px;
-			height: 720px;
-			overflow: hidden;           /* 캔버스가 넘치면 잘라냄 */
-			position: relative;         /* 페이지 흐름 내에서 배치 */
-			background: transparent !important;
-		}
-
-		/* ───────────────────────────────────────────────────────────
-		   캔버스도 동일 크기로 고정
-		─────────────────────────────────────────────────────────── */
-		#unity-canvas {
-			width: 1280px !important;
-			height: 720px !important;
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-
-		/* pixel-art용 렌더링 옵션은 그대로 유지 */
-		#unity-canvas[data-pixel-art="true"] {
-			image-rendering: optimizeSpeed;
-			image-rendering: -webkit-crisp-edges;
-			image-rendering: -moz-crisp-edges;
-			image-rendering: -o-crisp-edges;
-			image-rendering: crisp-edges;
-			image-rendering: -webkit-optimize-contrast;
-			image-rendering: optimize-contrast;
-			image-rendering: pixelated;
-			-ms-interpolation-mode: nearest-neighbor;
-		}
-	</style>
-	<script type='text/javascript'>
-		document.onmousedown = function () { window.focus(); };
-	</script>
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        #gameContainer {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background: transparent !important;
+            transform-origin: top left; /* scale 기준점 */
+        }
+        #unity-canvas {
+            width: 1280px !important;
+            height: 720px !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #unity-canvas[data-pixel-art="true"] {
+            image-rendering: optimizeSpeed;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -o-crisp-edges;
+            image-rendering: crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: optimize-contrast;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+    </style>
+    <script>
+        document.onmousedown = function(){ window.focus(); };
+    </script>
+    <script>
+        // shrink-to-fit=no → iOS 자동 축소 방지
+        (function(){
+            const meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=no';
+            document.head.appendChild(meta);
+        })();
+    </script>
 </head>
-
 <body>
-	<div id="gameContainer">
-		<canvas id="unity-canvas" data-pixel-art="true"></canvas>
-	</div>
+<div id="gameContainer">
+    <canvas id="unity-canvas" data-pixel-art="true"></canvas>
+</div>
 
-	<script src="Build/WebGL.loader.js"></script>
-	<script>
-		var canvas = document.querySelector("#unity-canvas");
-		var config = {
-			dataUrl:           "Build/WebGL.data",
-			frameworkUrl:      "Build/WebGL.framework.js",
-			codeUrl:           "Build/WebGL.wasm",
-			streamingAssetsUrl:"StreamingAssets",
-			companyName:       "MilestoneGames",
-			productName:       "DungeonDice_MockUp",
-			productVersion:    "6.1.5",
-		};
+<script src="Build/WebGL.loader.js"></script>
+<script>
+    var canvas = document.querySelector('#unity-canvas');
+    var container = document.querySelector('#gameContainer');
 
-		// 자동 리사이즈 로직 비활성화
-		var scaleToFit = false;
+    var config = {
+        dataUrl: "Build/WebGL.data",
+        frameworkUrl: "Build/WebGL.framework.js",
+        codeUrl: "Build/WebGL.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "MilestoneGames",
+        productName: "DungeonDice_MockUp",
+        productVersion: "6.1.5",
+        devicePixelRatio: 1 // DPR 고정 → 갑자기 작아지는 문제 방지
+    };
 
-		function progressHandler(progress) {
-			var percent = progress * 100 + '%';
-			canvas.style.background =
-				'linear-gradient(to right, white, white ' + percent +
-				', transparent ' + percent + ', transparent) no-repeat center';
-			canvas.style.backgroundSize = '100% 1rem';
-		}
+    function progressHandler(progress) {
+        var percent = (progress * 100) + '%';
+        canvas.style.background =
+            'linear-gradient(to right, white, white ' + percent +
+            ', transparent ' + percent + ', transparent) no-repeat center';
+        canvas.style.backgroundSize = '100% 1rem';
+    }
 
-		// 고정 사이즈만 적용하도록 onResize 재정의
-		function onResize() {
-			/*var container = canvas.parentElement;
-			var w = 1280, h = 720;
-			container.style.width  = canvas.style.width  = w + "px";
-			container.style.height = canvas.style.height = h + "px";
-			// (선택) 세로/가로 중앙정렬
-			container.style.top  = Math.floor((window.innerHeight - h) / 2) + "px";
-			container.style.left = Math.floor((window.innerWidth  - w) / 2) + "px";*/
-		}
+    function lockCanvasSize() {
+        // CSS 기본 크기
+        canvas.style.width  = "1280px";
+        canvas.style.height = "720px";
+        canvas.width  = 1280;
+        canvas.height = 720;
 
-		createUnityInstance(canvas, config, progressHandler).then(function (instance) {
-			window.unityInstance = instance;
-			// 초기 사이즈 강제 설정
-			canvas.width  = 1280;
-			canvas.height = 720;
-			onResize();
-			// resize 이벤트는 필요에 따라 주석 처리하세요
-			window.addEventListener('resize', onResize);
-		});
+        // PC는 고정
+        if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            container.style.transform = "scale(1)";
+            return;
+        }
 
-		// 모바일 뷰포트 메타 태그 (기존 유지)
-		if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-			const meta = document.createElement('meta');
-			meta.name = 'viewport';
-			meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-			document.getElementsByTagName('head')[0].appendChild(meta);
-		}
-	</script>
+        // 모바일만 축소 허용
+        var scaleX = window.innerWidth  / 1280;
+        var scaleY = window.innerHeight / 720;
+        var scale = Math.min(scaleX, scaleY, 1); // 1 이하일 때만 축소
+        container.style.transform = "scale(" + scale + ")";
+    }
+
+    createUnityInstance(canvas, config, progressHandler).then(function (instance) {
+        window.unityInstance = instance;
+        lockCanvasSize();
+        window.addEventListener('resize', lockCanvasSize);
+        window.addEventListener('orientationchange', lockCanvasSize);
+        window.addEventListener('pageshow', lockCanvasSize);
+    });
+</script>
 </body>
-
 </html>
