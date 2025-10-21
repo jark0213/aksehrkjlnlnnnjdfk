@@ -411,12 +411,13 @@ Module.readBodyWithProgress = function() {
 
     var compression = response.headers.get("Content-Encoding");
     var contentLength = parseInt(response.headers.get("Content-Length"));
-    
+    var maxContentLength = 512 * 1024 * 1024; // cap initial buffer size to 512 MB
+
     switch (compression) {
     case "br":
-      return Math.round(contentLength * 5);
+      return Math.min(Math.round(contentLength * 2), maxContentLength);
     case "gzip":
-      return Math.round(contentLength * 4);
+      return Math.min(Math.round(contentLength * 1.6), maxContentLength);
     default:
       return contentLength;
     }
