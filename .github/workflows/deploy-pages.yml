@@ -63,9 +63,26 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          # Worker에서 보낸 reason 값을 가져옴
+          BUILD_REASON: ${{ github.event.client_payload.reason }}
         run: |
-          payload='{"content":"✅ Pages deployment success 🔗 '"${PAGE_URL:-N/A}"'"}'
-          curl -sS -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL"
+          # 기본 메시지 설정
+          MSG="페이지 빌드 완료 ${PAGE_URL:-https://jark0213.github.io/aksehrkjlnlnnnjdfk/}"
+          
+          # 빌드 이유(reason)가 있으면 앞에 추가 (줄바꿈 포함)
+          if [ -n "$BUILD_REASON" ]; then
+            FINAL_CONTENT="${BUILD_REASON}\n${MSG}"
+          else
+            FINAL_CONTENT="${MSG}"
+          fi
+          
+          # JSON 페이로드 생성 (jq 없이도 안전하게 구성)
+          payload=$(printf '{"content": "%b"}' "$FINAL_CONTENT")
+          
+          curl -sS -H "Content-Type: application/json" \
+               -X POST \
+               -d "$payload" \
+               "$DISCORD_WEBHOOK_URL"
 
 
       # ❌ 실패만 알림 (취소 제외)
