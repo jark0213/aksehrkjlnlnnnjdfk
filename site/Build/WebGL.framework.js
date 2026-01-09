@@ -2086,13 +2086,13 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  7652576: function() {return Module.webglContextAttributes.premultipliedAlpha;},  
- 7652637: function() {return Module.webglContextAttributes.preserveDrawingBuffer;},  
- 7652701: function() {return Module.webglContextAttributes.powerPreference;},  
- 7652759: function() {Module['emscripten_get_now_backup'] = performance.now;},  
- 7652814: function($0) {performance.now = function() { return $0; };},  
- 7652862: function($0) {performance.now = function() { return $0; };},  
- 7652910: function() {performance.now = Module['emscripten_get_now_backup'];}
+  7654640: function() {return Module.webglContextAttributes.premultipliedAlpha;},  
+ 7654701: function() {return Module.webglContextAttributes.preserveDrawingBuffer;},  
+ 7654765: function() {return Module.webglContextAttributes.powerPreference;},  
+ 7654823: function() {Module['emscripten_get_now_backup'] = performance.now;},  
+ 7654878: function($0) {performance.now = function() { return $0; };},  
+ 7654926: function($0) {performance.now = function() { return $0; };},  
+ 7654974: function() {performance.now = Module['emscripten_get_now_backup'];}
 };
 
 
@@ -17813,6 +17813,9 @@ var dynCall_viiiifii = Module["dynCall_viiiifii"] = createExportWrapper("dynCall
 var dynCall_viiffi = Module["dynCall_viiffi"] = createExportWrapper("dynCall_viiffi");
 
 /** @type {function(...*):?} */
+var dynCall_viiiiiifiiiiiiiiii = Module["dynCall_viiiiiifiiiiiiiiii"] = createExportWrapper("dynCall_viiiiiifiiiiiiiiii");
+
+/** @type {function(...*):?} */
 var dynCall_viifiiiiiiiiii = Module["dynCall_viifiiiiiiiiii"] = createExportWrapper("dynCall_viifiiiiiiiiii");
 
 /** @type {function(...*):?} */
@@ -17820,9 +17823,6 @@ var dynCall_iidi = Module["dynCall_iidi"] = createExportWrapper("dynCall_iidi");
 
 /** @type {function(...*):?} */
 var dynCall_viiiiiiiiiiiiiiiifiii = Module["dynCall_viiiiiiiiiiiiiiiifiii"] = createExportWrapper("dynCall_viiiiiiiiiiiiiiiifiii");
-
-/** @type {function(...*):?} */
-var dynCall_viiiiiifiiiiiiiiii = Module["dynCall_viiiiiifiiiiiiiiii"] = createExportWrapper("dynCall_viiiiiifiiiiiiiiii");
 
 /** @type {function(...*):?} */
 var dynCall_vijji = Module["dynCall_vijji"] = createExportWrapper("dynCall_vijji");
@@ -19752,6 +19752,17 @@ function invoke_viiffi(index,a1,a2,a3,a4,a5) {
   }
 }
 
+function invoke_viiiiiifiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiifiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viifiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) {
   var sp = stackSave();
   try {
@@ -19778,17 +19789,6 @@ function invoke_viiiiiiiiiiiiiiiifiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a
   var sp = stackSave();
   try {
     dynCall_viiiiiiiiiiiiiiiifiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viiiiiifiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17) {
-  var sp = stackSave();
-  try {
-    dynCall_viiiiiifiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -19829,10 +19829,10 @@ function invoke_idi(index,a1,a2) {
   }
 }
 
-function invoke_iiiifi(index,a1,a2,a3,a4,a5) {
+function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
   var sp = stackSave();
   try {
-    return dynCall_iiiifi(index,a1,a2,a3,a4,a5);
+    dynCall_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -19840,10 +19840,10 @@ function invoke_iiiifi(index,a1,a2,a3,a4,a5) {
   }
 }
 
-function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
+function invoke_iiiifi(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
-    dynCall_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+    return dynCall_iiiifi(index,a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
