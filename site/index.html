@@ -66,13 +66,13 @@
     var container = document.querySelector('#gameContainer');
 
     var config = {
-        dataUrl: "Build/WebGL.data",
-        frameworkUrl: "Build/WebGL.framework.js",
-        codeUrl: "Build/WebGL.wasm",
+        dataUrl: "Build/WebGL.data.unityweb",
+        frameworkUrl: "Build/WebGL.framework.js.unityweb",
+        codeUrl: "Build/WebGL.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "MilestoneGames",
         productName: "DungeonDice_MockUp",
-        productVersion: "6.1.7",
+        productVersion: "6.1.8",
         devicePixelRatio: 1 // DPR 고정 → 갑자기 작아지는 문제 방지
     };
 
@@ -104,12 +104,24 @@
         container.style.transform = "scale(" + scale + ")";
     }
 
+    function notifyUnityResize() {
+        if (!window.unityInstance || !window.unityInstance.SendMessage) {
+            return;
+        }
+        window.unityInstance.SendMessage("ResizeManager", "OnResize");
+    }
+
+    function handleResize() {
+        lockCanvasSize();
+        notifyUnityResize();
+    }
+
     createUnityInstance(canvas, config, progressHandler).then(function (instance) {
         window.unityInstance = instance;
-        lockCanvasSize();
-        window.addEventListener('resize', lockCanvasSize);
-        window.addEventListener('orientationchange', lockCanvasSize);
-        window.addEventListener('pageshow', lockCanvasSize);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', handleResize);
+        window.addEventListener('pageshow', handleResize);
     });
 </script>
 </body>
