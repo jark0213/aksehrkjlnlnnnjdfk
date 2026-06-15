@@ -2,6 +2,7 @@
   <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="AnimFx" preserve="all" />
     <type fullname="AttackMoveSO" preserve="all" />
+    <type fullname="AttackProfileSO" preserve="all" />
     <type fullname="DiceFaceActionEndBehaviour" preserve="all" />
     <type fullname="RangedAttackProfileSO" preserve="all" />
     <type fullname="AttackMoveKey" preserve="nothing" serialized="true" />
