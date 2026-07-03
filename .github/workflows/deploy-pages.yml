@@ -15,14 +15,14 @@ permissions:
 
 concurrency:
   group: pages-deploy
-  cancel-in-progress: false
+  cancel-in-progress: false   # 진행 중인 Pages 배포는 취소 금지(GitHub 공식 권장). 취소 시 환경이 막혀 다음 배포가 실패함.
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -55,8 +55,34 @@ jobs:
         with:
           path: site              # <- Repo A가 푸시한 폴더
 
-      - name: Deploy to GitHub Pages
-        id: deployment
+      # ── 자동 재시도 배포 (GitHub Pages 백엔드 일시 실패 대비) ──────────────
+      # deploy-pages 자체엔 재시도 옵션이 없어서, 스텝을 여러 번 호출해 구제한다.
+      # 1·2차는 continue-on-error 로 실패해도 job 을 죽이지 않고,
+      # 마지막 시도만 진짜 실패 판정(→ 디스코드 실패 알림)을 낸다.
+      # 업로드된 'github-pages' 아티팩트는 성공 시점에만 삭제되므로 재시도 간 재사용된다.
+      - name: Deploy to GitHub Pages (attempt 1)
+        id: deploy1
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before attempt 2
+        if: steps.deploy1.outcome == 'failure'
+        run: sleep 30
+
+      - name: Deploy to GitHub Pages (attempt 2)
+        id: deploy2
+        if: steps.deploy1.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before final attempt
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        run: sleep 60
+
+      # 마지막 시도: continue-on-error 없음 → 여기서 실패하면 job 실패
+      - name: Deploy to GitHub Pages (final attempt)
+        id: deploy3
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
         uses: actions/deploy-pages@v4
 
       # ✅ 성공만 알림
@@ -64,7 +90,7 @@ jobs:
         if: ${{ success() && !cancelled() }}
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          PAGE_URL: ${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}
           # Worker에서 보낸 reason 값을 가져옴
           BUILD_REASON: ${{ github.event.client_payload.reason }}
         run: |
