@@ -85,7 +85,8 @@ jobs:
         if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
         uses: actions/deploy-pages@v4
 
-      # ✅ 성공만 알림
+      # ✅ 성공만 알림 — 알림은 부가 기능: 웹훅 연결이 일시적으로 죽어도(curl 35 등)
+      # job을 실패시키면 안 된다(실제로 배포 성공이 ❌ 실패 알림으로 둔갑한 사례 있음).
       - name: Notify Discord — success
         if: ${{ success() && !cancelled() }}
         env:
@@ -107,10 +108,13 @@ jobs:
           # JSON 페이로드 생성 (jq 없이도 안전하게 구성)
           payload=$(printf '{"content": "%b"}' "$FINAL_CONTENT")
           
-          curl -sS -H "Content-Type: application/json" \
+          # 일시적 연결 리셋 구제: 재시도 후에도 실패하면 경고만 남기고 스텝은 통과
+          curl -sS --retry 3 --retry-all-errors --max-time 15 \
+               -H "Content-Type: application/json" \
                -X POST \
                -d "$payload" \
-               "$DISCORD_WEBHOOK_URL"
+               "$DISCORD_WEBHOOK_URL" \
+            || echo "::warning::Discord success notify failed — deployment itself succeeded."
 
 
       # ❌ 실패만 알림 (취소 제외)
@@ -121,7 +125,9 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           payload=$(printf '{"content":"❌ Pages deployment failed 🔎 Logs: %s"}' "$RUN_URL")
-          curl -sS -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL"
+          curl -sS --retry 3 --retry-all-errors --max-time 15 \
+               -H "Content-Type: application/json" -X POST -d "$payload" "$DISCORD_WEBHOOK_URL" \
+            || echo "::warning::Discord failure notify failed."
 
 
       # (선택) 배포 후 Pages 아티팩트 깔끔하게 삭제
