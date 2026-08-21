@@ -1,0 +1,4 @@
+[Patch Notes]
+
+This is the default (fallback) patch note file.
+patchnote_en.txt in the Google Drive PatchNote folder overwrites this at build time.
