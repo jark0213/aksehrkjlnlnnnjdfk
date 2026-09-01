@@ -29,6 +29,8 @@
             position: absolute;
             top: 0;
             left: 0;
+            /* WebGL은 사용자 입력 이벤트 밖의 Cursor.visible=false를 무시함(브라우저 보안 제약) — CSS로 OS 커서를 상시 숨기고 커스텀 커서(CursorManager)만 보인다 */
+            cursor: none !important;
         }
         #unity-canvas[data-pixel-art="true"] {
             image-rendering: optimizeSpeed;
