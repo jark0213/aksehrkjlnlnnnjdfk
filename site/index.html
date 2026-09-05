@@ -68,9 +68,9 @@
     var container = document.querySelector('#gameContainer');
 
     var config = {
-        dataUrl: "Build/ba0ed67fdd9781b1a724cea8acd1e8aa.data.unityweb",
-        frameworkUrl: "Build/55800d42b790abd15bb78d3fb53c994c.framework.js.unityweb",
-        codeUrl: "Build/f58c6a0c89a554c65469cc53bad68bf1.wasm.unityweb",
+        dataUrl: "Build/f8d47aa3f11fea0e63c2d814e781fe41.data.unityweb",
+        frameworkUrl: "Build/e76257b50c2518daf408d03db346147b.framework.js.unityweb",
+        codeUrl: "Build/47064975bdae288ebb34925fde874c7e.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Crumbition",
         productName: "LostFace",
@@ -121,6 +121,11 @@
     createUnityInstance(canvas, config, progressHandler).then(function (instance) {
         window.unityInstance = instance;
         handleResize();
+        // 전체화면 중 ESC를 브라우저(전체화면 해제) 대신 게임(팝업 닫기)으로 보낸다 — Keyboard Lock API.
+        // Chromium 계열·https 전용(Firefox/Safari는 무시됨). 락 후엔 ESC 길게(약 2초) 눌러야 전체화면 해제.
+        if (navigator.keyboard && navigator.keyboard.lock) {
+            navigator.keyboard.lock(['Escape']).catch(function(){});
+        }
         window.addEventListener('resize', handleResize);
         window.addEventListener('orientationchange', handleResize);
         window.addEventListener('pageshow', handleResize);
